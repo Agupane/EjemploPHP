@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Gestor de tareas</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+
+    <script type="text/javascript">
+        var itemNuevaTarea,tareaSelected;
+        var nombreProyectoSeleccionado = "Proyecto 1";
+        var contadorTareas = 0;
+        var listaTareas = [{
+            id:"",
+            nombre:"",
+            minutosTrabajados:"",
+            horasEstimadas:"",
+            idResponsable:"",
+            idProyecto:"",
+            idPrioridad:"",
+            finalizada:""
+        }];
+       // var listaTareas = ["nombre","responsable","minutosTrabajados","minutosEstimados","tareaFinalizada"];
+        function cargarComponentes() {
+            $("#menuTop").load("menuTop.html");
+            $("#tituloNombreProyecto").text("Proyecto: " + nombreProyectoSeleccionado);
+
+            /** Agrega una tarea en la lista de tareas */
+            $("#btnAddTarea").click (function() {
+
+                itemNuevaTarea =
+                        "<tr>" +
+                        "<td>" +
+                        listaTareas[0] +
+                        "</td>" +
+                        "<td>" +
+                        listaTareas[1] +
+                        "</td>" +
+                        "<td>" +
+                        listaTareas[2] +
+                        "</td>" +
+                        "<td>" +
+                        listaTareas[3] +
+                        "</td>" +
+                        "<td>" +
+                        listaTareas[4] +
+                        "</td>" +
+                        "</tr>";
+                $("#tablaTareas").append(itemNuevaTarea);
+                contadorTareas++;
+
+            });
+            /** Elimina la tarea de la fila seleccionada */
+            $("#btnDeleteTarea").click (function(){
+               $(this).index.remove;
+            });
+
+            /** Recibe evento de clik en item de tabla */
+            $("#tablaTareas").on("click","tr",function() {
+                tareaSelected = listaTareas[$(this).index()];
+                alert('You clicked row '+ tareaSelected.
+                /*
+                i = 1+$(this).index();
+                generarDialog();
+                */
+            });
+        }
+
+    </script>
+</head>
+<body onload="cargarComponentes()">
+<div class ="container">
+    <div id="menuTop"></div>
+    <div id="menuCentral">
+        <div class ="row">
+            <div class ="col-md-12">
+                <h1 id="tituloNombreProyecto"></h1>
+                <!-- <div class="list-group" id="listaTareas"> -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <th>Tarea</th>
+                            <th>Responsable</th>
+                            <th>Minutos trabajados</th>
+                            <th>Minutos estimados</th>
+                            <th>Tarea finalizada?</th>
+                        </thead>
+                        <tbody id="tablaTareas">
+                        </tbody>
+                    </table>
+                </div>
+                <button id="btnAddTarea" type="button" class="btn btn-primary">Nueva Tarea</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script  type="text/javascript" src="../js/jquery-3.1.1.js"></script>
+</html>
