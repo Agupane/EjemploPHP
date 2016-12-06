@@ -71,9 +71,14 @@
                 agregarTareaATabla(tareaI);
             }
         }
+        /** Recibe el id del responsable y retorna su nombre */
+        function getNombreResponsable(idResponsable){
+            return "Agustin";  //TODO TERMINAR
+        }
         /** Recibe una tarea por parametro y la inserta en la tabla de tareas */
         function agregarTareaATabla(nuevaTarea){
-            var finalizada,rowFinalizada;
+            var finalizada,rowFinalizada,nombreResponsable;
+            nombreResponsable = getNombreResponsable(nuevaTarea.idResponsable);
             if(nuevaTarea.finalizada){
                 finalizada = "Si";
                 rowFinalizada = "<tr class=\"success\">";
@@ -89,7 +94,7 @@
                        nuevaTarea.id+
                     "</td>" +
                     "<td>" +
-                            nuevaTarea.idResponsable+
+                            nombreResponsable+
                     "</td>" +
                     "<td>" +
                         nuevaTarea.minutosTrabajados+
@@ -110,10 +115,8 @@
             var responsableTarea = $("#inputResponsable").val();
             var horasEstimadasTarea = $("#inputHorasEstimadas").val();
             var prioridadTarea = $("#inputPrioridad").val();
-            var responsableTarea = buscarResponsable(responsableTarea);
+            var responsableTarea = $("#inputResponsable").val();
             var idTarea = listaTareas.length+1; // TODO MODIFICAR
-            console.log("holas "+responsableTarea);
-            console.log("tarea "+horasEstimadasTarea);
             var nuevaTarea= {
                 id:idTarea,
                 nombre:nombreTarea,
@@ -122,16 +125,16 @@
                 idResponsable:responsableTarea,
                 idProyecto:idProyectoSelected,
                 idPrioridad:prioridadTarea,
-                finalizada:"false"
+                finalizada:false
             };
             listaTareas.push(nuevaTarea);
             agregarTareaATabla(nuevaTarea);
+            $("#inputNombreTarea").val("");
+            $("#inputResponsable").val("");
+            $("#inputHorasEstimadas").val("");
+            $("#inputPrioridad").val("");
         }
-        /** Recibe el nombre del responsable y devuelve el id */
-        function buscarResponsable(responsable){
-            /** TODO */
-            return 2;
-        }
+
     </script>
 </head>
 <body onload="cargarComponentes()">
@@ -230,10 +233,10 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default"
                             data-dismiss="modal">
-                        Close
+                        Cancelar
                     </button>
                     <button type="button" class="btn btn-primary" onclick="nuevaTarea()">
-                        Save changes
+                        Crear tarea
                     </button>
                 </div>
             </div>
