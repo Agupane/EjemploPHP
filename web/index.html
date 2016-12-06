@@ -6,67 +6,132 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <!--
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    -->
+    <script src="../js/jquery-3.1.1.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
         var itemNuevaTarea,tareaSelected;
         var nombreProyectoSeleccionado = "Proyecto 1";
-        var contadorTareas = 0;
+        var idProyectoSelected = 1;
         var listaTareas = [{
-            id:"",
-            nombre:"",
-            minutosTrabajados:"",
-            horasEstimadas:"",
-            idResponsable:"",
-            idProyecto:"",
-            idPrioridad:"",
-            finalizada:""
-        }];
-       // var listaTareas = ["nombre","responsable","minutosTrabajados","minutosEstimados","tareaFinalizada"];
+            id:"1",
+            nombre:"tarea1",
+            minutosTrabajados:"1",
+            horasEstimadas:"3",
+            idResponsable:"2",
+            idProyecto:"1",
+            idPrioridad:"1",
+            finalizada: false
+        },
+            {
+                id:"2",
+                nombre:"tarea2",
+                minutosTrabajados:"60",
+                horasEstimadas:"1",
+                idResponsable:"5",
+                idProyecto:"2",
+                idPrioridad:"2",
+                finalizada: true
+            }];
+
+
+        /** Asigna los listeners a los componentes HTML */
         function cargarComponentes() {
             $("#menuTop").load("menuTop.html");
             $("#tituloNombreProyecto").text("Proyecto: " + nombreProyectoSeleccionado);
+            cargarTareas();
 
-            /** Agrega una tarea en la lista de tareas */
+            /** Listener que abre la ventana modal de creacion de tarea */
             $("#btnAddTarea").click (function() {
-
-                itemNuevaTarea =
-                        "<tr>" +
-                        "<td>" +
-                        listaTareas[0] +
-                        "</td>" +
-                        "<td>" +
-                        listaTareas[1] +
-                        "</td>" +
-                        "<td>" +
-                        listaTareas[2] +
-                        "</td>" +
-                        "<td>" +
-                        listaTareas[3] +
-                        "</td>" +
-                        "<td>" +
-                        listaTareas[4] +
-                        "</td>" +
-                        "</tr>";
-                $("#tablaTareas").append(itemNuevaTarea);
-                contadorTareas++;
-
+                jQuery.noConflict();
+                $("#modalNuevaTarea").modal("show");
             });
             /** Elimina la tarea de la fila seleccionada */
             $("#btnDeleteTarea").click (function(){
                $(this).index.remove;
             });
 
-            /** Recibe evento de clik en item de tabla */
+            /** Recibe evento de click en item de tabla */
             $("#tablaTareas").on("click","tr",function() {
                 tareaSelected = listaTareas[$(this).index()];
-                alert('You clicked row '+ tareaSelected.
+                alert('You clicked row '+ tareaSelected);
                 /*
                 i = 1+$(this).index();
                 generarDialog();
                 */
             });
         }
-
+        /** Carga todas las tareas del array de tareas en la tabla de tareas */
+        function cargarTareas(){
+            for (var i = 0, len = listaTareas.length; i < len; i++) {
+                var tareaI = listaTareas[i];
+                agregarTareaATabla(tareaI);
+            }
+        }
+        /** Recibe una tarea por parametro y la inserta en la tabla de tareas */
+        function agregarTareaATabla(nuevaTarea){
+            var finalizada,rowFinalizada;
+            if(nuevaTarea.finalizada){
+                finalizada = "Si";
+                rowFinalizada = "<tr class=\"success\">";
+            }
+            else
+            {
+                finalizada = "No";
+                rowFinalizada = "<tr class=\"danger\">";
+            }
+            itemNuevaTarea =
+                    rowFinalizada +
+                    "<td>" +
+                       nuevaTarea.id+
+                    "</td>" +
+                    "<td>" +
+                            nuevaTarea.idResponsable+
+                    "</td>" +
+                    "<td>" +
+                        nuevaTarea.minutosTrabajados+
+                    "</td>" +
+                    "<td>" +
+                        nuevaTarea.horasEstimadas+
+                    "</td>" +
+                    "<td>" +
+                        finalizada+
+                    "</td>" +
+                    "</tr>";
+            $("#tablaTareas").append(itemNuevaTarea);
+        }
+        /** Crea una nueva tarea basada en los datos de los */
+        function nuevaTarea(){
+            $("#modalNuevaTarea").modal("hide");
+            var nombreTarea = $("#inputNombreTarea").val();
+            var responsableTarea = $("#inputResponsable").val();
+            var horasEstimadasTarea = $("#inputHorasEstimadas").val();
+            var prioridadTarea = $("#inputPrioridad").val();
+            var responsableTarea = buscarResponsable(responsableTarea);
+            var idTarea = listaTareas.length+1; // TODO MODIFICAR
+            console.log("holas "+responsableTarea);
+            console.log("tarea "+horasEstimadasTarea);
+            var nuevaTarea= {
+                id:idTarea,
+                nombre:nombreTarea,
+                minutosTrabajados:"0",
+                horasEstimadas:horasEstimadasTarea,
+                idResponsable:responsableTarea,
+                idProyecto:idProyectoSelected,
+                idPrioridad:prioridadTarea,
+                finalizada:"false"
+            };
+            listaTareas.push(nuevaTarea);
+            agregarTareaATabla(nuevaTarea);
+        }
+        /** Recibe el nombre del responsable y devuelve el id */
+        function buscarResponsable(responsable){
+            /** TODO */
+            return 2;
+        }
     </script>
 </head>
 <body onload="cargarComponentes()">
@@ -76,25 +141,108 @@
         <div class ="row">
             <div class ="col-md-12">
                 <h1 id="tituloNombreProyecto"></h1>
-                <!-- <div class="list-group" id="listaTareas"> -->
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-hover">
                         <thead>
                             <th>Tarea</th>
                             <th>Responsable</th>
                             <th>Minutos trabajados</th>
-                            <th>Minutos estimados</th>
+                            <th>Horas estimadas</th>
                             <th>Tarea finalizada?</th>
                         </thead>
                         <tbody id="tablaTareas">
                         </tbody>
                     </table>
                 </div>
-                <button id="btnAddTarea" type="button" class="btn btn-primary">Nueva Tarea</button>
+                <button class="btn btn-primary btn-lg" data-toggle="modal" id="btnAddTarea" type="button" >
+                    Nueva Tarea
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Cancelar</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Nueva Tarea
+                    </h4>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <!-- Nombre -->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"
+                                    for="inputNombreTarea">Nombre
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control"
+                                       id="inputNombreTarea" placeholder="Nombre de la tarea"/>
+                            </div>
+                        </div>
+                        <!-- Responsable -->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"
+                                    for="inputResponsable">Responsable
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control"
+                                       id="inputResponsable" placeholder="Persona responsable"/>
+                            </div>
+                        </div>
+                        <!-- Prioridad -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"
+                                   for="inputPrioridad">Seleccione la prioridad:
+                            </label>
+                            <div class="col-sm-10">
+                            <select class="form-control" id="inputPrioridad">
+                                <option>Alta</option>
+                                <option>Media</option>
+                                <option>Baja</option>
+                            </select>
+                            </div>
+                        </div>
+                        <!-- Horas estimadas -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"
+                                   for="inputHorasEstimadas" >Horas estimadas
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control"
+                                       id="inputHorasEstimadas" placeholder="Horas estimadas de realizacion"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nuevaTarea()">
+                        Save changes
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 </body>
+<!--
 <script  type="text/javascript" src="../js/jquery-3.1.1.js"></script>
+-->
 </html>
