@@ -167,12 +167,14 @@
         }
         /** Recibe el indice de la tarea a eliminar y la borra TODO TERMINAR */
         function borrarTarea(indiceTarea){
+            /** TODO Arreglar el bug  con el listener de la tabla */
             console.log("indice tarea: "+indiceTarea);
             var tablaNueva = $("<tbody id=\"tablaTareas\">"+ "</tbody>");
             var tablaVieja= $("#tablaTareas");
             listaTareas.splice(indiceTarea, 1);
             tablaVieja.replaceWith(tablaNueva);
-            $("#tablaTareas").addEventListener("click",itemTareaSelected(indiceTarea));
+          //  $("#tablaTareas").addEventListener("click",itemTareaSelected(indiceTarea));
+            $("#tablaTareas").on("click","tr",itemTareaSelected(indexTareaSelected));
             $("#modalTareaSelected").modal("hide");
             cargarTareas();
         }
