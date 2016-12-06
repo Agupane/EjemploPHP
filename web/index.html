@@ -57,7 +57,37 @@
             /** Recibe evento de click en item de tabla */
             $("#tablaTareas").on("click","tr",function() {
                 tareaSelected = listaTareas[$(this).index()];
-                alert('You clicked row '+ tareaSelected);
+                var itemTareaSelected;
+                nombreResponsable = getNombreResponsable(tareaSelected.idResponsable);
+                if(tareaSelected.finalizada){
+                    finalizada = "Si";
+                }
+                else
+                {
+                    finalizada = "No";
+                }
+                itemTareaSelected =
+                "<tr id=\"tablaTareaSelected\">" +
+                    "<td>" +
+                        tareaSelected.id+
+                    "</td>" +
+                    "<td>" +
+                        nombreResponsable+
+                    "</td>" +
+                    "<td>" +
+                        tareaSelected.minutosTrabajados+
+                    "</td>" +
+                    "<td>" +
+                        tareaSelected.horasEstimadas+
+                    "</td>" +
+                    "<td>" +
+                        finalizada+
+                    "</td>"+
+                "</tr>";
+                $("#tablaTareaSelected").replaceWith(itemTareaSelected);
+                jQuery.noConflict();
+                $("#modalTareaSelected").modal("show");
+               // alert('You clicked row '+ tareaSelected);
                 /*
                 i = 1+$(this).index();
                 generarDialog();
@@ -163,7 +193,7 @@
             </div>
         </div>
     </div>
-    <!-- Modal -->
+    <!-- Modal Nueva Tarea -->
     <div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -240,6 +270,43 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+    <!-- Modal Tarea Selected -->
+    <div class="modal fade" id="modalTareaSelected" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Seleccion tarea</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <th>Tarea</th>
+                            <th>Responsable</th>
+                            <th>Minutos trabajados</th>
+                            <th>Horas estimadas</th>
+                            <th>Tarea finalizada?</th>
+                            </thead>
+                            <tbody>
+                                <tr id="tablaTareaSelected"></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary">Editar</button>
+                        <button type="button" class="btn btn-primary">Eliminar</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
