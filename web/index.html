@@ -13,7 +13,7 @@
     <script src="../js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
-        var itemNuevaTarea,tareaSelected;
+        var itemNuevaTarea,tareaSelected,indexTareaSelected;
         var nombreProyectoSeleccionado = "Proyecto 1";
         var idProyectoSelected = 1;
         var listaTareas = [{
@@ -49,49 +49,15 @@
                 jQuery.noConflict();
                 $("#modalNuevaTarea").modal("show");
             });
-            /** Elimina la tarea de la fila seleccionada */
-            $("#btnDeleteTarea").click (function(){
-               $(this).index.remove;
+            /** Listener para borrar la tarea seleccionada */
+            $("#btnBorrarTarea").click (function(){
+               borrarTarea(indexTareaSelected);
             });
 
-            /** Recibe evento de click en item de tabla */
+            /** Recibe evento de click en tarea de la tabla */
             $("#tablaTareas").on("click","tr",function() {
-                tareaSelected = listaTareas[$(this).index()];
-                var itemTareaSelected;
-                nombreResponsable = getNombreResponsable(tareaSelected.idResponsable);
-                if(tareaSelected.finalizada){
-                    finalizada = "Si";
-                }
-                else
-                {
-                    finalizada = "No";
-                }
-                itemTareaSelected =
-                "<tr id=\"tablaTareaSelected\">" +
-                    "<td>" +
-                        tareaSelected.id+
-                    "</td>" +
-                    "<td>" +
-                        nombreResponsable+
-                    "</td>" +
-                    "<td>" +
-                        tareaSelected.minutosTrabajados+
-                    "</td>" +
-                    "<td>" +
-                        tareaSelected.horasEstimadas+
-                    "</td>" +
-                    "<td>" +
-                        finalizada+
-                    "</td>"+
-                "</tr>";
-                $("#tablaTareaSelected").replaceWith(itemTareaSelected);
-                jQuery.noConflict();
-                $("#modalTareaSelected").modal("show");
-               // alert('You clicked row '+ tareaSelected);
-                /*
-                i = 1+$(this).index();
-                generarDialog();
-                */
+                indexTareaSelected = $(this).index();
+                itemTareaSelected(indexTareaSelected);
             });
         }
         /** Carga todas las tareas del array de tareas en la tabla de tareas */
@@ -100,6 +66,41 @@
                 var tareaI = listaTareas[i];
                 agregarTareaATabla(tareaI);
             }
+        }
+        /** Evento que se ejecuta cuando se selecciona una fila de la tabla */
+        function itemTareaSelected(indiceTarea){
+            console.log("seleccionaron un item id: "+indiceTarea);
+            tareaSelected = listaTareas[indiceTarea];
+            var itemTareaSelected;
+            nombreResponsable = getNombreResponsable(tareaSelected.idResponsable);
+            if(tareaSelected.finalizada){
+                finalizada = "Si";
+            }
+            else
+            {
+                finalizada = "No";
+            }
+            itemTareaSelected =
+                    "<tr id=\"tablaTareaSelected\">" +
+                    "<td>" +
+                    tareaSelected.id+
+                    "</td>" +
+                    "<td>" +
+                    nombreResponsable+
+                    "</td>" +
+                    "<td>" +
+                    tareaSelected.minutosTrabajados+
+                    "</td>" +
+                    "<td>" +
+                    tareaSelected.horasEstimadas+
+                    "</td>" +
+                    "<td>" +
+                    finalizada+
+                    "</td>"+
+                    "</tr>";
+            $("#tablaTareaSelected").replaceWith(itemTareaSelected);
+            jQuery.noConflict();
+            $("#modalTareaSelected").modal("show");
         }
         /** Recibe el id del responsable y retorna su nombre */
         function getNombreResponsable(idResponsable){
@@ -164,11 +165,22 @@
             $("#inputHorasEstimadas").val("");
             $("#inputPrioridad").val("");
         }
+        /** Recibe el indice de la tarea a eliminar y la borra TODO TERMINAR */
+        function borrarTarea(indiceTarea){
+            console.log("indice tarea: "+indiceTarea);
+            var tablaNueva = $("<tbody id=\"tablaTareas\">"+ "</tbody>");
+            var tablaVieja= $("#tablaTareas");
+            listaTareas.splice(indiceTarea, 1);
+            tablaVieja.replaceWith(tablaNueva);
+            $("#tablaTareas").addEventListener("click",itemTareaSelected(indiceTarea));
+            $("#modalTareaSelected").modal("hide");
+            cargarTareas();
+        }
 
     </script>
 </head>
 <body onload="cargarComponentes()">
-<div class ="container">
+ <div class ="container">
     <div id="menuTop"></div>
     <div id="menuCentral">
         <div class ="row">
@@ -300,8 +312,8 @@
                 </div>
                 <div class="modal-footer">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary">Editar</button>
-                        <button type="button" class="btn btn-primary">Eliminar</button>
+                        <button type="button" class="btn btn-primary" id="btnEditarTarea">Editar</button>
+                        <button type="button" class="btn btn-primary" id="btnBorrarTarea">Eliminar</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
