@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <!-- Modal Nueva Tarea -->
+    <div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Cancelar</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Nueva Tarea
+                    </h4>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <!-- Nombre -->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"
+                                    for="inputNombreTarea">Nombre
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control"
+                                       id="inputNombreTarea" placeholder="Nombre de la tarea"/>
+                            </div>
+                        </div>
+                        <!-- Responsable -->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"
+                                    for="inputResponsable">Responsable
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control"
+                                       id="inputResponsable" placeholder="Persona responsable"/>
+                            </div>
+                        </div>
+                        <!-- Prioridad -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"
+                                   for="inputPrioridad">Seleccione la prioridad:
+                            </label>
+                            <div class="col-sm-10">
+                                <select class="form-control" id="inputPrioridad">
+                                    <option>Alta</option>
+                                    <option>Media</option>
+                                    <option>Baja</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Horas estimadas -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"
+                                   for="inputHorasEstimadas" >Horas estimadas
+                            </label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control"
+                                       id="inputHorasEstimadas" placeholder="Horas estimadas de realizacion"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nuevaTarea()">
+                        Crear tarea
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
