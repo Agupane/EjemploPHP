@@ -20,6 +20,7 @@
                     <table class="table table-hover">
                         <thead>
                         <th>Tarea</th>
+                        <th>Descripcion</th>
                         <th>Responsable</th>
                         <th>Minutos trabajados</th>
                         <th>Horas estimadas</th>
@@ -33,8 +34,8 @@
             </div>
             <div class="modal-footer">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" id="btnEditarTarea">Editar</button>
-                    <button type="button" class="btn btn-primary" id="btnBorrarTarea">Eliminar</button>
+                    <button type="button" class="btn btn-primary" id="btnEditarTarea" onclick="editarONuevaTarea(true)">Editar</button>
+                    <button type="button" class="btn btn-primary" id="btnBorrarTarea" onclick="borrarTarea(indexTareaSelected)">Eliminar</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>

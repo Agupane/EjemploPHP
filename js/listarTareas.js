@@ -2,60 +2,61 @@
  * Created by Agustin on 12/06/2016.
  */
 var itemNuevaTarea,tareaSelected,indexTareaSelected;
-var nombreProyectoSeleccionado = " proyecto 1";
+var nombreProyectoSeleccionado = "proyecto 1";
 var idProyectoSelected = 1;
-var listaTareas = [{
-    id:"1",
-    nombre:"tarea1",
-    minutosTrabajados:"1",
-    horasEstimadas:"3",
-    idResponsable:"2",
-    idProyecto:"1",
-    idPrioridad:"1",
-    finalizada: false
-},
-    {
-        id:"2",
-        nombre:"tarea2",
-        minutosTrabajados:"60",
-        horasEstimadas:"1",
-        idResponsable:"5",
-        idProyecto:"2",
-        idPrioridad:"2",
-        finalizada: true
-    }];
-
+var editandoTarea=false;
+var listaTareas = [];
 
 /** Asigna los listeners a los componentes HTML */
 function cargarComponentes() {
+    cargarTareas();
     $("#menuTop").load("menuTop.html");
-    $("#modalNuevaTarea").load("modalNuevaTarea.html");
     $("#tituloNombreProyecto").text("Listando tareas del proyecto:  ");
     $("#nombreProyecto").text(nombreProyectoSeleccionado);
-    cargarTareas();
 
     /** Listener que abre la ventana modal de creacion de tarea */
     $("#btnAddTarea").click (function() {
         jQuery.noConflict();
         $("#modalNuevaTarea").modal("show");
     });
-    /** Listener para borrar la tarea seleccionada */
-    $("#btnBorrarTarea").click (function(){
-        console.log("hicieron click");
-        borrarTarea(indexTareaSelected);
-    });
-
     /** Recibe evento de click en tarea de la tabla */
     $("#tablaTareas").on("click","tr",function() {
         indexTareaSelected = $(this).index();
         itemTareaSelected(indexTareaSelected);
     });
+    /** Listener para borrar la tarea seleccionada */
+    $("#btnBorrarTarea").click (function(){
+        borrarTarea(indexTareaSelected);
+    });
 }
-/** Carga todas las tareas del array de tareas en la tabla de tareas */
+/*
+ * Busca con AJAX las tareas al backend del proyecto X y luego
+ * Carga todas las tareas del array de tareas en la tabla de tareas
+ */
 function cargarTareas(){
-    for (var i = 0, len = listaTareas.length; i < len; i++) {
-        var tareaI = listaTareas[i];
-        agregarTareaATabla(tareaI);
+    $.ajax({
+        type: "GET",
+        url:"../php/gestorTareas.php",
+        data: {"idTarea":"all","idProyecto":idProyectoSelected},
+        success: function (datos){
+            listaTareas = JSON.parse(datos);
+            for (var i = 0, len = listaTareas.length; i < len; i++) {
+                var tareaI = listaTareas[i];
+                agregarTareaATabla(tareaI);
+            }
+        }
+    });
+}
+/** Asigna el listener al boton de crear / editar tarea */
+/** Si lo que se hace es crear una nueva tarea ejecuta nueva tarea, de lo contrario ejecuta
+ *  Editar tarea
+ */
+function btnAgregarEditarPressed(){
+    if(editandoTarea) {
+        editarTarea(indexTareaSelected);
+    }
+    else{
+        nuevaTarea();
     }
 }
 /** Evento que se ejecuta cuando se selecciona una fila de la tabla
@@ -63,7 +64,6 @@ function cargarTareas(){
 function itemTareaSelected(indiceTarea){
     tareaSelected = listaTareas[indiceTarea];
     var itemTareaSelected;
-    nombreResponsable = getNombreResponsable(tareaSelected.idResponsable);
     if(tareaSelected.finalizada){
         finalizada = "Si";
     }
@@ -77,7 +77,10 @@ function itemTareaSelected(indiceTarea){
         tareaSelected.id+
         "</td>" +
         "<td>" +
-        nombreResponsable+
+        tareaSelected.descripcion+
+        "</td>" +
+        "<td>" +
+        tareaSelected.nombreResponsable+
         "</td>" +
         "<td>" +
         tareaSelected.minutosTrabajados+
@@ -93,22 +96,31 @@ function itemTareaSelected(indiceTarea){
     jQuery.noConflict();
     $("#modalTareaSelected").modal("show");
 }
-/** Recibe el id del responsable y retorna su nombre */
-function getNombreResponsable(idResponsable){
-    return "Agustin";  //TODO TERMINAR
-}
 /** Recibe una tarea por parametro y la inserta en la tabla de tareas */
 function agregarTareaATabla(nuevaTarea){
-    var finalizada,rowFinalizada,nombreResponsable;
-    nombreResponsable = getNombreResponsable(nuevaTarea.idResponsable);
-    if(nuevaTarea.finalizada){
-        finalizada = "Si";
-        rowFinalizada = "<tr class=\"success\">";
+    var finalizada,rowFinalizada;
+    switch(nuevaTarea.prioridad) {
+        case "Alta":
+        {
+            rowFinalizada = "<tr class=\"danger\">";
+            break;
+        }
+        case "Media":
+        {
+            rowFinalizada = "<tr class=\"success\">";
+            break;
+        }
+        case "Baja":
+        {
+            rowFinalizada = "<tr class=\"warning\">";
+        }
+    }
+    if(nuevaTarea.finalizada == 0){
+        finalizada = "No";
     }
     else
     {
-        finalizada = "No";
-        rowFinalizada = "<tr class=\"danger\">";
+        finalizada = "Si";
     }
     itemNuevaTarea =
         rowFinalizada +
@@ -116,7 +128,10 @@ function agregarTareaATabla(nuevaTarea){
         nuevaTarea.id+
         "</td>" +
         "<td>" +
-        nombreResponsable+
+        nuevaTarea.descripcion+
+        "</td>" +
+        "<td>" +
+        nuevaTarea.nombreResponsable+
         "</td>" +
         "<td>" +
         nuevaTarea.minutosTrabajados+
@@ -130,37 +145,121 @@ function agregarTareaATabla(nuevaTarea){
         "</tr>";
     $("#tablaTareas").append(itemNuevaTarea);
 }
-/** Crea una nueva tarea basada en los datos de los */
+/** Determina si se desea editar una tarea o si se esta creando una nueva
+ *  Si recibe un false significa que hay que editar una tarea, de lo contrario crear una nueva
+ */
+function editarONuevaTarea(editarTarea){
+    editandoTarea=editarTarea;
+    if(editarTarea){
+        var tarea = listaTareas[indexTareaSelected];
+        $("#btnDialogNuevaTarea").text("Editar tarea");
+        $("#modalNuevaTareaTittle").text("Editando tarea");
+
+        /** Escondo el dialog modal */
+        $("#modalTareaSelected").modal("hide");
+        $("#inputDescripcionTarea").val(tarea.descripcion);
+        $("#inputResponsable").val(tarea.nombreResponsable);
+        $("#inputPrioridad").val(tarea.prioridad).change();
+        $("#inputHorasEstimadas").val(tarea.horasEstimadas);
+        $("#modalNuevaTarea").modal("show");
+    }
+    else{
+        $("#btnDialogNuevaTarea").text("Nueva tarea");
+        $("#modalNuevaTareaTittle").text("Nueva tarea");
+        $("#inputNombreTarea").val("");
+        $("#inputResponsable").val("");
+        $("#inputHorasEstimadas").val("");
+        $("#inputPrioridad").val("");
+    }
+}
+/** Crea una nueva tarea basada en los datos de los inputs */
 function nuevaTarea(){
     $("#modalNuevaTarea").modal("hide");
-    var nombreTarea = $("#inputNombreTarea").val();
+    var descripcionTarea = $("#inputDescripcionTarea").val();
     var responsableTarea = $("#inputResponsable").val();
     var horasEstimadasTarea = $("#inputHorasEstimadas").val();
     var prioridadTarea = $("#inputPrioridad").val();
-    var responsableTarea = $("#inputResponsable").val();
-    var idTarea = listaTareas.length+1; // TODO MODIFICAR
+    var idTarea = "";
     var nuevaTarea= {
         id:idTarea,
-        nombre:nombreTarea,
+        descripcion:descripcionTarea,
         minutosTrabajados:"0",
         horasEstimadas:horasEstimadasTarea,
-        idResponsable:responsableTarea,
+        nombreResponsable:responsableTarea,
         idProyecto:idProyectoSelected,
-        idPrioridad:prioridadTarea,
+        prioridad:prioridadTarea,
         finalizada:false
     };
-    listaTareas.push(nuevaTarea);
-    agregarTareaATabla(nuevaTarea);
-    $("#inputNombreTarea").val("");
+    var tareaString = JSON.stringify(nuevaTarea);
+    $.ajax({
+        type: "POST",
+        url:"../php/gestorTareas.php",
+        data: {"nuevaTarea":tareaString},
+        success: function (respuesta){
+            nuevaTarea.id = respuesta; // Asigno el id que se auto genero
+
+            /* Agrego la nueva tarea a la tabla sin volver a listar todas las tareas para mejorar performance*/
+            //agregarTareaATabla(nuevaTarea);
+        },
+        error: function () {
+            console.log("Error");
+        }
+    })
+    regenerarTablaTareas();
+    $("#inputDescripcionTarea").val("");
     $("#inputResponsable").val("");
     $("#inputHorasEstimadas").val("");
     $("#inputPrioridad").val("");
+    $("#modalNuevaTareaTittle").text("");
 }
-/** Recibe el indice de la tarea a eliminar y la borra TODO TERMINAR */
+/** Recibe el indice de la tarea a eliminar y la borra */
 function borrarTarea(indiceTarea){
+    var idTarea = listaTareas[indiceTarea].id;
+    $.ajax({
+        type: "POST",
+        url:"../php/gestorTareas.php",
+        data: {"idTarea":idTarea,eliminada:true},
+        success: function (respuesta){
+        },
+        error: function () {
+           console.log("se produjo un error");
+        }
+    })
+    regenerarTablaTareas();
+}
+function editarTarea(indiceTarea){
+    var descripcionTarea = $("#inputDescripcionTarea").val();
+    var responsableTarea = $("#inputResponsable").val();
+    var horasEstimadasTarea = $("#inputHorasEstimadas").val();
+    var prioridadTarea = $("#inputPrioridad").val();
+    var tareaAEditar = listaTareas[indiceTarea];
+    tareaAEditar.descripcion=descripcionTarea;
+    tareaAEditar.horasEstimadas = horasEstimadasTarea;
+    tareaAEditar.nombreResponsable = responsableTarea;
+    tareaAEditar.prioridad = prioridadTarea;
+
+    var tareaString = JSON.stringify(tareaAEditar);
+    $.ajax({
+        type: "POST",
+        url:"../php/gestorTareas.php",
+        data: {"editarTarea":tareaString},
+        success: function (respuesta){
+        },
+        error: function () {
+            console.log("Error");
+        }
+    })
+    //agregarTareaATabla(nuevaTarea);
+    /** Regenero la tabla de tareas */
+    regenerarTablaTareas();
+    $("#modalNuevaTarea").modal("hide");
+}
+/**
+ * Actualiza la tabla de tareas con la lista de tareas
+ */
+function regenerarTablaTareas(){
     var tablaNueva = $("<tbody id=\"tablaTareas\">"+ "</tbody>");
     var tablaVieja= $("#tablaTareas");
-    listaTareas.splice(indiceTarea, 1);
     tablaVieja.replaceWith(tablaNueva);
     /** Asigno el listener de click en la tarea*/
     $( "#tablaTareas" ).on( "click", "tr", function() {
